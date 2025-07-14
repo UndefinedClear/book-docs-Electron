@@ -20,6 +20,8 @@
 ## Showcase
 ![showcase1](<https://raw.githubusercontent.com/UndefinedClear/book-docs-Electron/refs/heads/main/Screenshots/screenshot1.png>)
 
+![showcase2](<https://raw.githubusercontent.com/UndefinedClear/book-docs-Electron/refs/heads/main/Screenshots/screenshot2.png>)
+
 ## Getting Started
 
 1. **Clone the repository:**
