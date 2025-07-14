@@ -1,15 +1,15 @@
-import { useState } from "react";
-import { 
-  Book, 
-  FileText, 
-  Search, 
-  ChevronRight, 
-  Home, 
-  Folder, 
+import { useState, useMemo } from "react";
+import {
+  Book,
+  FileText,
+  Search,
+  ChevronRight,
+  Home,
+  Folder,
   FolderOpen,
   BookOpen,
   Settings,
-  HelpCircle
+  HelpCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ interface SidebarItem {
   id: string;
   title: string;
   icon?: any;
-  type: 'folder' | 'page';
+  type: "folder" | "page";
   children?: SidebarItem[];
   isNew?: boolean;
 }
@@ -72,25 +72,81 @@ const sidebarStructure: SidebarItem[] = [
   }
 ];
 
-export function GitBookSidebar() {
+function highlight(text: string, query: string) {
+  if (!query) return text;
+  const regex = new RegExp(`(${query})`, "ig");
+  return text.split(regex).map((part, i) =>
+    regex.test(part) ? (
+      <mark key={i} className="bg-yellow-200 rounded px-0.5">
+        {part}
+      </mark>
+    ) : (
+      part
+    )
+  );
+}
+
+function filterSidebar(items: SidebarItem[], query: string): SidebarItem[] {
+  if (!query) return items;
+  const q = query.toLowerCase();
+  return items
+    .map((item) => {
+      if (item.type === "folder" && item.children) {
+        const filteredChildren = filterSidebar(item.children, query);
+        if (
+          item.title.toLowerCase().includes(q) ||
+          filteredChildren.length > 0
+        ) {
+          return { ...item, children: filteredChildren };
+        }
+        return null;
+      }
+      if (item.title.toLowerCase().includes(q)) {
+        return item;
+      }
+      return null;
+    })
+    .filter(Boolean) as SidebarItem[];
+}
+
+export function GitBookSidebar({
+  activePage,
+  onPageChange,
+}: {
+  activePage?: string;
+  onPageChange?: (id: string) => void;
+} = {}) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [expandedFolders, setExpandedFolders] = useState<string[]>(["getting-started"]);
-  const [activePage, setActivePage] = useState("overview");
+  const [expandedFolders, setExpandedFolders] = useState<string[]>([
+    "getting-started",
+  ]);
+  const [internalActivePage, setInternalActivePage] = useState("overview");
+
+  const currentActivePage = activePage ?? internalActivePage;
+  const setActivePage = (id: string) => {
+    setInternalActivePage(id);
+    onPageChange?.(id);
+  };
+
+  const filteredSidebar = useMemo(
+    () => filterSidebar(sidebarStructure, searchQuery),
+    [searchQuery]
+  );
 
   const toggleFolder = (folderId: string) => {
-    setExpandedFolders(prev => 
-      prev.includes(folderId) 
-        ? prev.filter(id => id !== folderId)
+    setExpandedFolders((prev) =>
+      prev.includes(folderId)
+        ? prev.filter((id) => id !== folderId)
         : [...prev, folderId]
     );
   };
 
   const renderSidebarItem = (item: SidebarItem, level: number = 0) => {
     const isExpanded = expandedFolders.includes(item.id);
-    const isActive = activePage === item.id;
+    const isActive = currentActivePage === item.id;
     const hasChildren = item.children && item.children.length > 0;
 
-    if (item.type === 'folder') {
+    if (item.type === "folder") {
       return (
         <div key={item.id} className="w-full">
           <Button
@@ -100,23 +156,37 @@ export function GitBookSidebar() {
               level > 0 && "ml-4"
             )}
             onClick={() => toggleFolder(item.id)}
+            aria-expanded={isExpanded}
+            aria-controls={`folder-${item.id}`}
           >
-            {isExpanded ? 
-              <FolderOpen className="h-4 w-4 mr-2 text-muted-foreground" /> : 
+            {isExpanded ? (
+              <FolderOpen className="h-4 w-4 mr-2 text-muted-foreground" />
+            ) : (
               <Folder className="h-4 w-4 mr-2 text-muted-foreground" />
-            }
-            <span className="flex-1 text-left">{item.title}</span>
-            <ChevronRight 
+            )}
+            <span className="flex-1 text-left">
+              {highlight(item.title, searchQuery)}
+            </span>
+            <ChevronRight
               className={cn(
-                "h-3 w-3 transition-gitbook text-muted-foreground", 
+                "h-3 w-3 transition-gitbook text-muted-foreground",
                 isExpanded && "rotate-90"
-              )} 
+              )}
             />
           </Button>
-          
-          {hasChildren && isExpanded && (
-            <div className="mt-1 ml-2">
-              {item.children?.map(child => renderSidebarItem(child, level + 1))}
+          {hasChildren && (
+            <div
+              id={`folder-${item.id}`}
+              className={cn(
+                "overflow-hidden transition-all duration-200",
+                isExpanded ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+              )}
+            >
+              <div className="mt-1 ml-2">
+                {item.children?.map((child) =>
+                  renderSidebarItem(child, level + 1)
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -130,12 +200,16 @@ export function GitBookSidebar() {
         className={cn(
           "w-full justify-start h-8 px-2 text-sm transition-gitbook",
           level > 0 && "ml-6",
-          isActive ? "bg-primary/10 text-primary border-r-2 border-primary" : "hover-bg-subtle"
+          isActive
+            ? "bg-primary/10 text-primary border-r-2 border-primary"
+            : "hover-bg-subtle"
         )}
         onClick={() => setActivePage(item.id)}
       >
         <FileText className="h-3 w-3 mr-2 flex-shrink-0 text-muted-foreground" />
-        <span className="flex-1 text-left truncate">{item.title}</span>
+        <span className="flex-1 text-left truncate">
+          {highlight(item.title, searchQuery)}
+        </span>
         {item.isNew && (
           <span className="ml-2 px-1.5 py-0.5 text-xs bg-primary/20 text-primary rounded">
             New
@@ -146,7 +220,7 @@ export function GitBookSidebar() {
   };
 
   return (
-    <div className="w-72 h-screen bg-background border-r border-subtle flex flex-col">
+    <div className="w-72 h-screen bg-background border-r border-subtle flex flex-col fixed left-0 top-0 z-[9999]">
       {/* Header */}
       <div className="p-4 border-b border-subtle">
         <div className="flex items-center space-x-3">
@@ -176,7 +250,13 @@ export function GitBookSidebar() {
       {/* Navigation */}
       <div className="flex-1 overflow-y-auto p-2">
         <nav className="space-y-1">
-          {sidebarStructure.map(item => renderSidebarItem(item))}
+          {filteredSidebar.length > 0 ? (
+            filteredSidebar.map((item) => renderSidebarItem(item))
+          ) : (
+            <div className="text-xs text-muted-foreground px-2 py-4">
+              No results found.
+            </div>
+          )}
         </nav>
       </div>
 
