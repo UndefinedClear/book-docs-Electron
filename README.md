@@ -1,6 +1,6 @@
-# book-docs-opensource
+# book-docs-Electron
 
-**book-docs-opensource** is an open source project for creating, viewing, and organizing documentation in a GitBook-like format. Built with modern frontend technologies (React, TypeScript, Vite, TailwindCSS), it offers a fast and flexible platform for your documentation needs.
+**book-docs-electron** is an open source project for creating, viewing, and organizing documentation in a GitBook-like format. Built with modern frontend technologies (React, TypeScript, Vite, TailwindCSS), it offers a fast and flexible platform for your documentation needs. (But like an app)
 
 ## Features
 
@@ -23,25 +23,29 @@
    ```bash
    git clone https://github.com/UndefinedClear/book-docs-Electron.git
    cd book-docs-Electron
-   ```
-
-2. **Install dependencies:**
-   ```bash
    npm install
-   # or
-   bun install
+   cd ui
+   npm install
+   cd ..
    ```
-
-3. **Start the development server:**
+https://raw.githubusercontent.com/UndefinedClear/book-docs-Electron/refs/heads/main/README.md
+2. **Start webserver:**
    ```bash
-   npm run dev
-   # or
-   bun run dev
+   root of project:
+   sh dev.sh
    ```
 
-4. **Open in your browser:**
+3. **Open the ui app**
+   ```bash
+   cd ui/
+   sh ui.sh
+
+   <!-- If you on Arch => Press make it float or use fullscreen for better EXP!-->
    ```
-   http://localhost:5173
+
+4. **Or open in your browser:**
+   ```
+   http://localhost:8080
    ```
 
 ## Available Scripts
