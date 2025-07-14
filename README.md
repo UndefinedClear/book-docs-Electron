@@ -17,6 +17,9 @@
 - **TailwindCSS** — utility-first CSS framework
 - **ESLint** — code linting
 
+## Showcase
+![showcase1](<https://raw.githubusercontent.com/UndefinedClear/book-docs-Electron/refs/heads/main/Screenshots/screenshot1.png>)
+
 ## Getting Started
 
 1. **Clone the repository:**
@@ -28,7 +31,7 @@
    npm install
    cd ..
    ```
-https://raw.githubusercontent.com/UndefinedClear/book-docs-Electron/refs/heads/main/README.md
+
 2. **Start webserver:**
    ```bash
    root of project:
