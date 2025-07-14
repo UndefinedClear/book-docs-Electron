@@ -21,8 +21,8 @@
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/book-docs-opensource.git
-   cd book-docs-opensource
+   git clone https://github.com/UndefinedClear/book-docs-Electron.git
+   cd book-docs-Electron
    ```
 
 2. **Install dependencies:**
